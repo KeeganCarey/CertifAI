@@ -10,6 +10,11 @@ uploadArea.addEventListener('click', () => {
   fileInput.click();
 });
 
+// Add a button in your popup.html
+document.getElementById('openChatButton').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('chat_page/chat_page.html') });
+});
+
 // Handle file selection
 fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
