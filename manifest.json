@@ -8,14 +8,14 @@
     "activeTab"
   ],
   "web_accessible_resources": [{
-    "resources": ["pdfjs/*", "pdf.worker.mjs", "pdf.mjs"],
+    "resources": ["lib/pdfjs/*", "lib/pdf.worker.mjs", "lib/pdf.mjs"],
     "matches": ["<all_urls>"]
   }],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup/popup.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/background.js"
   },
   "host_permissions": [
     "https://api.openai.com/*",
@@ -28,7 +28,7 @@
       "https://ltss.oaklandnet.com/Apply/Apply1/BusinessLicense"
       ],
 
-      "js": ["content.js"]
+      "js": ["content/content.js"]
     }
   ]
 }

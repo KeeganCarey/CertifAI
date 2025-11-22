@@ -3,8 +3,8 @@ let extractTextFromPDF;
 
 // Initialize PDF.js
 (async () => {
-  pdfjsLib = await import(chrome.runtime.getURL('pdf.mjs'));
-  pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.mjs');
+  pdfjsLib = await import(chrome.runtime.getURL('lib/pdf.mjs'));
+  pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('lib/pdf.worker.mjs');
   
   extractTextFromPDF = async function(pdfData) {
     if (!pdfData) {  // Changed from pdfDataBase64
