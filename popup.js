@@ -3,7 +3,7 @@ let pdfText = null;
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const fillButton = document.getElementById('fillButton');
-const status = document.getElementById('status');
+// const status = document.getElementById('status');
 
 // Click upload area to trigger file input
 uploadArea.addEventListener('click', () => {
@@ -16,13 +16,13 @@ fileInput.addEventListener('change', async (e) => {
   if (!file) return;
   
   if (file.type !== 'application/pdf') {
-    status.textContent = 'Please select a PDF file';
-    status.className = 'error';
+    textContent = 'Please select a PDF file';
+    className = 'error';
     return;
   }
   
-  status.textContent = 'Reading PDF...';
-  status.className = '';
+  textContent = 'Reading PDF...';
+  className = '';
   
   try {
     // Convert PDF to base64
@@ -30,20 +30,20 @@ fileInput.addEventListener('change', async (e) => {
     pdfText = base64;
     
     uploadArea.innerHTML = `<p>${file.name}</p><p style="font-size: 12px;">Click to change</p>`;
-    status.textContent = 'PDF loaded successfully!';
-    status.className = 'success';
+    textContent = 'PDF loaded successfully!';
+    className = 'success';
   } catch (error) {
     console.error('Error reading PDF:', error);
-    status.textContent = 'Error reading PDF';
-    status.className = 'error';
+    textContent = 'Error reading PDF';
+    className = 'error';
   }
 });
 
 // Fill form button
 fillButton.addEventListener('click', async () => {
   fillButton.disabled = true;
-  status.textContent = 'Filling form...';
-  status.className = '';
+  textContent = 'Filling form...';
+  className = '';
   
   try {
     // Get the active tab
@@ -55,18 +55,18 @@ fillButton.addEventListener('click', async () => {
       pdfData: pdfText
     }, (response) => {
       if (chrome.runtime.lastError) {
-        status.textContent = 'Error: ' + chrome.runtime.lastError.message;
-        status.className = 'error';
+        textContent = 'Error: ' + chrome.runtime.lastError.message;
+        className = 'error';
       } else {
-        status.textContent = 'Form filled successfully!';
-        status.className = 'success';
+        textContent = 'Form filled successfully!';
+        className = 'success';
       }
       fillButton.disabled = false;
     });
   } catch (error) {
     console.error('Error:', error);
-    status.textContent = 'Error filling form';
-    status.className = 'error';
+    textContent = 'Error filling form';
+    className = 'error';
     fillButton.disabled = false;
   }
 });
