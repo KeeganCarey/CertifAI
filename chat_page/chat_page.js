@@ -1,29 +1,69 @@
+// Enhanced chat_page.js with Markdown formatting, smooth UI, typing indicator, and fade-in
+
 const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
+// Adds messages with smooth fade animation + Markdown render for assistant
 function addMessage(text, isUser) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
-    messageDiv.textContent = text;
+    messageDiv.style.opacity = 0;
+
+    if (isUser) {
+        // User messages are plain text
+        messageDiv.textContent = text;
+    } else {
+        // Render assistant messages with Markdown → sanitized HTML
+        const html = DOMPurify.sanitize(marked.parse(text));
+        messageDiv.innerHTML = html;
+    }
+
     chatContainer.appendChild(messageDiv);
+
+    // Fade-in effect
+    setTimeout(() => {
+        messageDiv.style.transition = "opacity 0.3s ease";
+        messageDiv.style.opacity = 1;
+    }, 10);
+
+    // Auto-scroll to bottom
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+// Creates a temporary typing indicator
+function showTypingIndicator() {
+    const indicator = document.createElement('div');
+    indicator.className = 'message assistant';
+    indicator.id = 'typing-indicator';
+    indicator.textContent = 'AI is typing…';
+    indicator.style.opacity = 0.6;
+
+    chatContainer.appendChild(indicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) indicator.remove();
+}
+
 async function sendMessage() {
-    console.log('Send button clicked');
     const message = userInput.value.trim();
     if (!message) return;
-    
+
     addMessage(message, true);
     userInput.value = '';
-    
+
+    showTypingIndicator();
+
     try {
-        // Send to background script to make the API call
-        const response = await getCompletion("/no-think "+message);
-        console.log('Received response:', response);
+        const response = await getCompletion("/no-think " + message);
+
+        removeTypingIndicator();
         addMessage(response, false);
     } catch (error) {
+        removeTypingIndicator();
         addMessage('Error: ' + error.message, false);
     }
 }
@@ -32,7 +72,7 @@ async function getCompletion(prompt, pdfData = null) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
       { 
-        action: 'getCompletion', 
+        action: 'getChat', 
         prompt: prompt,
         pdfData: pdfData 
       },
@@ -54,5 +94,4 @@ async function getCompletion(prompt, pdfData = null) {
 sendBtn.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
-    console.log(e);
 });

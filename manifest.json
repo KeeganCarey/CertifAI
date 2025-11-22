@@ -8,7 +8,14 @@
     "activeTab"
   ],
   "web_accessible_resources": [{
-    "resources": ["lib/pdfjs/*", "lib/pdf.worker.mjs", "lib/pdf.mjs", "chat_page/chat_page.html"],
+    "resources": [
+    "lib/pdfjs/*", 
+    "lib/pdf.worker.mjs", 
+    "lib/pdf.mjs", 
+    "chat_page/chat_page.html", 
+    "lib/marked.min.js", 
+    "lib/purify.min.js"
+  ],
     "matches": ["<all_urls>"]
   }],
   "action": {

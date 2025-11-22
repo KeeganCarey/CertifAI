@@ -1,6 +1,8 @@
 
 // LISTENER COMMANDS
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+  // FORM FILLING API CALLS
   if (request.action === 'getCompletion') {
     fetch('http://100.102.38.119:1235/v1/chat/completions', {
       method: 'POST',
@@ -64,28 +66,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  if (request.action === 'chat') {
-        fetch('http://localhost:1234/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'qwen3-14b',
-                messages: [{ role: 'user', content: request.message }],
-                temperature: 0.7
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            sendResponse({ text: data.choices[0].message.content });
-        })
-        .catch(error => {
-            sendResponse({ text: 'Error: ' + error.message });
-        });
-        
-        return true; // Keep the message channel open for async response
-    }
 
+  // CHATTING API CALLS
+  if (request.action === 'getChat') {
+    fetch('http://100.102.38.119:1235/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'qwen3-14b',
+        messages: [{ role: 'user', content: request.prompt }],
+        max_tokens: 2048,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      sendResponse({ 
+        success: true, 
+        content: data.choices[0].message.content 
+      });
+    })
+    .catch(error => {
+      sendResponse({ 
+        success: false, 
+        error: error.message 
+      });
+    });
     
+    return true; // Keep message channel open for async response
+  }
+
+
 });
 
 
