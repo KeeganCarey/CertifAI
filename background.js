@@ -31,6 +31,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === 'getCompletionOpenAI') {
+    const API_KEY = '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';
     fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -38,13 +39,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo', // or 'gpt-4o', 'gpt-3.5-turbo', etc.
+        model: 'gpt-3.5-turbo', 
         messages: [
-          { role: 'user', content: prompt }
+          { role: 'user', content: request.prompt }
         ],
         max_tokens: 1000
       }),
     })
+
   .then(response => response.json())
     .then(data => {
       sendResponse({ 

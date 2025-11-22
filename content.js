@@ -81,7 +81,7 @@ async function fillFormFields(pdfData = null) {
             "\nPDF: \n" + await extractTextFromPDF(pdfData);
           
           console.log("Prompt: \n" + prompt)
-          const completion = await getCompletion(prompt, pdfData);
+          const completion = await getCompletion(prompt);
           textbox.value = completion;
           textbox.style.backgroundColor = 'lightgreen';
         } catch (error) {
