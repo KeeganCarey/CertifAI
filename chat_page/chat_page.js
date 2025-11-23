@@ -4,6 +4,9 @@ const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
+let messages = []; // Store chat history
+ 
+
 // Adds messages with smooth fade animation + Markdown render for assistant
 function addMessage(text, isUser) {
     const messageDiv = document.createElement('div');
@@ -13,10 +16,17 @@ function addMessage(text, isUser) {
     if (isUser) {
         // User messages are plain text
         messageDiv.textContent = text;
+        messages.push({role: 'user', content: text});
     } else {
         // Render assistant messages with Markdown → sanitized HTML
         const html = DOMPurify.sanitize(marked.parse(text));
         messageDiv.innerHTML = html;
+        messages.push({role: 'assistant', content: text});
+    }
+
+    // Limit message history to last 20 messages
+    if (messages.length > 20) {
+        messages = messages.slice(-20);
     }
 
     chatContainer.appendChild(messageDiv);
@@ -68,13 +78,12 @@ async function sendMessage() {
     }
 }
 
-async function getCompletion(prompt, pdfData = null) {
+async function getCompletion(prompt) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
       { 
-        action: 'getChat', 
-        prompt: prompt,
-        pdfData: pdfData 
+        action: 'getCompletionOpenAI', 
+        messages: messages 
       },
       (response) => {
         if (chrome.runtime.lastError) {

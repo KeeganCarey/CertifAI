@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       body: JSON.stringify({
         model: 'qwen3-14b',
-        messages: [{ role: 'user', content: request.prompt }],
+        messages: request.messages,
         max_tokens: 1024,
       }),
     })
@@ -42,9 +42,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo', 
-        messages: [
-          { role: 'user', content: request.prompt }
-        ],
+        messages: request.messages,
         max_tokens: 1000
       }),
     })
@@ -76,7 +74,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       body: JSON.stringify({
         model: 'qwen3-14b',
-        messages: [{ role: 'user', content: request.prompt }],
+        messages: request.messages,
         max_tokens: 2048,
       }),
     })
