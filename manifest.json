@@ -3,6 +3,9 @@
   "name": "CertifAI",
   "version": "0.1.0",
   "description": "Fills out forms.",
+  "icons": {
+   "128": "icons/extension_icon128.png"
+  },
   "permissions": [
     "storage",
     "activeTab"
