@@ -44,21 +44,18 @@ function addMessage(text, isUser) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Creates a temporary typing indicator
+// add and remove temporary typing indicator to the ai response message
 function showTypingIndicator() {
-    const indicator = document.createElement('div');
-    indicator.className = 'message assistant';
-    indicator.id = 'typing-indicator';
-    indicator.textContent = 'AI is typing…';
-    indicator.style.opacity = 0.6;
-
-    chatContainer.appendChild(indicator);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
+    lastMsg.style.opacity = 0.6;
+    lastMsg.innerHTML = '<em>AI is typing…</em>';
 }
-
 function removeTypingIndicator() {
-    const indicator = document.getElementById('typing-indicator');
-    if (indicator) indicator.remove();
+    let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
+    if (lastMsg.innerHTML.includes('AI is typing') && lastMsg.style.opacity < 1.0) { // only remove if still typing indicator
+      lastMsg.style.opacity = 1.0;
+      lastMsg.innerHTML = '';
+    }
 }
 
 async function sendMessage() {
@@ -68,13 +65,14 @@ async function sendMessage() {
     addMessage(message, true);
     userInput.value = '';
 
-    // showTypingIndicator();
+    
 
     try {
       addMessage("", false);
+      showTypingIndicator();
       const response = await getCompletion("/no-think " + message);
 
-        // removeTypingIndicator();
+        
         
     } catch (error) {
         removeTypingIndicator();
@@ -182,6 +180,9 @@ chrome.runtime.onMessage.addListener((msg) => {
         }
           
         });
+
+        // Remove typing indicator if its still shown
+        removeTypingIndicator();
 
         // Update message
         // console.log("Appending chunk to message:", chunkStr);
