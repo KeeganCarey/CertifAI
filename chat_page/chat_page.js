@@ -21,7 +21,7 @@ function addMessage(text, isUser) {
         // Render assistant messages with Markdown → sanitized HTML
         const html = DOMPurify.sanitize(marked.parse(text));
         messageDiv.innerHTML = html;
-        messages.push({role: 'assistant', content: text});
+        // messages.push({role: 'assistant', content: text}); // Handled in streaming
     }
 
     // Limit message history to last 20 messages
@@ -65,13 +65,14 @@ async function sendMessage() {
     addMessage(message, true);
     userInput.value = '';
 
-    showTypingIndicator();
+    // showTypingIndicator();
 
     try {
-        const response = await getCompletion("/no-think " + message);
+      addMessage("", false);
+      const response = await getCompletion("/no-think " + message);
 
-        removeTypingIndicator();
-        addMessage(response, false);
+        // removeTypingIndicator();
+        
     } catch (error) {
         removeTypingIndicator();
         addMessage('Error: ' + error.message, false);
@@ -82,7 +83,7 @@ async function getCompletion(prompt) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
       { 
-        action: 'getAIResponse', 
+        action: 'getStreamedAIResponse', 
         messages: messages,
         max_tokens: 1028
       },
@@ -105,4 +106,75 @@ async function getCompletion(prompt) {
 sendBtn.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
+});
+
+
+let jsonBuffer = "";
+let messageBuffer = "";
+chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.action === "aiChunk") {
+        let isDone = false;
+        let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
+        if (!lastMsg) {
+            return;
+            // lastMsg = document.createElement('div');
+            // lastMsg.className = 'message assistant';
+            // chatContainer.appendChild(lastMsg);
+        }
+
+        let chunkStr = jsonBuffer + msg.chunk;
+        jsonBuffer = "";
+        if (!chunkStr) return;
+
+        console.log("Received chunk:", chunkStr);
+
+        // split the chunks by the "data:" header
+        chunks = chunkStr.split(("data:"))
+
+        chunkStr = "";
+        chunks.forEach(chunk => {
+          console.log("Processing sub-chunk:", chunk);
+
+          // Message is DONE
+          if (chunk.trim() == '[DONE]') {
+            isDone = true;
+            console.log("Message complete.");
+            return;
+          }
+
+          // Parse JSON chunk
+          if (!(chunk.trim() === "")) {
+            try {
+              const chunkJson = JSON.parse(chunk.trim());
+              chunkStr += chunkJson.choices[0].delta?.content || "";
+              chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models
+
+            } catch (err) {
+
+              if (err instanceof SyntaxError) {
+                  console.log("Incomplete chunk, buffering:", chunk.trim()); //buffer incomplete chunk
+                  jsonBuffer = chunk;
+                  return
+              } else {
+                console.error("Failed to parse chunk:", err, chunk.trim());
+              }
+
+            }
+          }
+          
+        });
+
+        // Update message
+        console.log("Appending chunk to message:", chunkStr);
+        messageBuffer += chunkStr;
+        lastMsg.innerHTML = DOMPurify.sanitize(marked.parse(messageBuffer));
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        if (isDone) {
+          messages.push({role: 'assistant', content: messageBuffer});
+          messageBuffer = "";
+          jsonBuffer = "";
+        }
+    }
 });
