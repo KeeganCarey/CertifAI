@@ -1,3 +1,11 @@
+/*
+This script mainly handles api calls to the different AI providers
+
+
+It
+*/
+
+
 
 // LISTENER COMMANDS
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -73,7 +81,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
 
-if (request.action === "getStreamedAIResponse") {
+  if (request.action === "getStreamedAIResponse") {
     (async () => {
         try {
             const settings = await new Promise((resolve) =>
@@ -87,7 +95,14 @@ if (request.action === "getStreamedAIResponse") {
             switch (settings.ai_provider) {
                 case "openai":
                     if (!settings.openai_key) {
+
+                        // make sure error is also streamed to chat page
+                        chrome.runtime.sendMessage({ action: "aiChunk",
+                          error: "No OpenAI API Key Saved", 
+                          tabId: sender.tab.id});
+
                         sendResponse({ success: false, error: "No OpenAI API Key Saved" });
+
                         return;
                     }
                     headers["Authorization"] = `Bearer ${settings.openai_key}`;
@@ -96,6 +111,12 @@ if (request.action === "getStreamedAIResponse") {
                     break;
                 case "lmstudio":
                     if (!settings.lmstudio_port) {
+
+                        // make sure error is also streamed to chat page
+                        chrome.runtime.sendMessage({ action: "aiChunk",
+                          error: "No LMStudio Port Selected", 
+                          tabId: sender.tab.id});
+
                         sendResponse({ success: false, error: "No LMStudio Port Selected" });
                         return;
                     }

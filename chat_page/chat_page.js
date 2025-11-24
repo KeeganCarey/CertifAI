@@ -113,61 +113,73 @@ userInput.addEventListener('keypress', (e) => {
 
 
 
+// Listen for streamed AI response chunks
 let jsonBuffer = "";
 let messageBuffer = "";
 chrome.runtime.onMessage.addListener((msg) => {
     if (msg.action === "aiChunk") {
 
       // console.log("target tabId:", msg.tabId, "this tabId:", tabId);
-      if (msg.tabId !== tabId) {
-        return; // Ignore chunks not for this tab
+      if (msg.tabId !== tabId) return; // Ignore chunks not for this tab
+
+      let isDone = false;
+      let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
+      if (!lastMsg) {
+          return;
       }
 
-        let isDone = false;
-        let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
-        if (!lastMsg) {
-            return;
+      // display error message to end user
+      if (msg.error) {
+        lastMsg.innerHTML = DOMPurify.sanitize(marked.parse(msg.error));
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        // messages.push({role: 'assistant', content: msg.error});
+        messageBuffer = "";
+        jsonBuffer = "";
+        return
+      }
+
+      
+
+      let chunkStr = jsonBuffer + msg.chunk;
+      jsonBuffer = "";
+
+      if (!chunkStr) return;
+      // console.log("Received chunk:", chunkStr);
+
+      // split the chunks by the "data:" header
+      chunks = chunkStr.split(("data:"))
+
+      chunkStr = "";
+      chunks.forEach(chunk => {
+        // console.log("Processing sub-chunk:", chunk);
+
+        // Message is DONE
+        if (chunk.trim() == '[DONE]') {
+          isDone = true;
+          console.log("Message complete.");
+          return;
         }
 
-        let chunkStr = jsonBuffer + msg.chunk;
-        jsonBuffer = "";
-        if (!chunkStr) return;
+        // Parse JSON chunk
+        if (!(chunk.trim() === "")) {
+          try {
+            const chunkJson = JSON.parse(chunk.trim());
+            chunkStr += chunkJson.choices[0].delta?.content || "";
+            chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models
 
-        // console.log("Received chunk:", chunkStr);
+          } catch (err) {
 
-        // split the chunks by the "data:" header
-        chunks = chunkStr.split(("data:"))
-
-        chunkStr = "";
-        chunks.forEach(chunk => {
-          // console.log("Processing sub-chunk:", chunk);
-
-          // Message is DONE
-          if (chunk.trim() == '[DONE]') {
-            isDone = true;
-            console.log("Message complete.");
-            return;
-          }
-
-          // Parse JSON chunk
-          if (!(chunk.trim() === "")) {
-            try {
-              const chunkJson = JSON.parse(chunk.trim());
-              chunkStr += chunkJson.choices[0].delta?.content || "";
-              chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models
-
-            } catch (err) {
-
-              if (err instanceof SyntaxError) {
-                  // console.log("Incomplete chunk, buffering:", chunk.trim()); //buffer incomplete chunk
-                  jsonBuffer = chunk;
-                  return
-              } else {
-                console.error("Failed to parse chunk:", err, chunk.trim());
-              }
-
+            if (err instanceof SyntaxError) {
+                // console.log("Incomplete chunk, buffering:", chunk.trim()); //buffer incomplete chunk
+                jsonBuffer = chunk;
+                return
+            } else {
+              console.error("Failed to parse chunk:", err, chunk.trim());
             }
+
           }
+        }
           
         });
 
