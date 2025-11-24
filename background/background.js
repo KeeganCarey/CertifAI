@@ -1,101 +1,75 @@
 
 // LISTENER COMMANDS
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getAIResponse") {
+    chrome.storage.local.get(
+      ["ai_provider", "openai_key", "lmstudio_port"],
+      (settings) => {
+        let endpoint = "";
+        let headers = { "Content-Type": "application/json" };
+        let model = "qwen3-14b";
 
-  // FORM FILLING API CALLS
-  if (request.action === 'getCompletion') {
-    fetch('http://100.102.38.119:1235/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'qwen3-14b',
-        messages: request.messages,
-        max_tokens: 1024,
-      }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      sendResponse({ 
-        success: true, 
-        content: data.choices[0].message.content 
-      });
-    })
-    .catch(error => {
-      sendResponse({ 
-        success: false, 
-        error: error.message 
-      });
-    });
-    
-    return true; // Keep message channel open for async response
-  }
+        // Decide which provider to use
+        switch (settings.ai_provider) {
 
-  if (request.action === 'getCompletionOpenAI') {
-    const API_KEY = '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';
-    fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo', 
-        messages: request.messages,
-        max_tokens: 1000
-      }),
-    })
+          // OpenAI API CALL
+          case "openai":
+            if (!settings.openai_key) {
+              sendResponse({ success: false, content: "No OpenAI API Key Saved", error: "No OpenAI API Key Saved" });
+              return;
+            }
+            headers["Authorization"] = `Bearer ${settings.openai_key}`;
 
-  .then(response => response.json())
-    .then(data => {
-      sendResponse({ 
-        success: true, 
-        content: data.choices[0].message.content 
-      });
-    })
-    .catch(error => {
-      sendResponse({ 
-        success: false, 
-        error: error.message 
-      });
-    });
-    
-    return true;
-  }
+            endpoint = "https://api.openai.com/v1/chat/completions";
+            model = "gpt-3.5-turbo";
+            break;
 
+          // LMStudio API CALL
+          case "lmstudio":
+            if (!settings.lmstudio_port) {
+              sendResponse({ success: false, content: "No LMStudio Port Selected", error: "No LMStudio Port Selected" });
+              return;
+            }
+            const port = settings.lmstudio_port;
+            endpoint = `http://localhost:${port}/v1/chat/completions`;
+            break;
+        
+          // REMOTE API CALL
+          case "remote":
+          default:
+            endpoint = "http://100.102.38.119:1235/v1/chat/completions";
+            model = "qwen3-14b";
+            break;
+        }
 
-  // CHATTING API CALLS
-  if (request.action === 'getChat') {
-    fetch('http://100.102.38.119:1235/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'qwen3-14b',
-        messages: request.messages,
-        max_tokens: 2048,
-      }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      sendResponse({ 
-        success: true, 
-        content: data.choices[0].message.content 
-      });
-    })
-    .catch(error => {
-      sendResponse({ 
-        success: false, 
-        error: error.message 
-      });
-    });
-    
-    return true; // Keep message channel open for async response
-  }
+        fetch(endpoint, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            model: model,
+            messages: request.messages,
+            max_tokens: request.max_tokens || 1028,
+          }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          sendResponse({ 
+            success: true, 
+            content: data.choices[0].message.content 
+          });
+        })
+        .catch(error => {
+          sendResponse({ 
+            success: false, 
+            content: error.message,
+            error: error.message 
+          });
+        });
+      }
+    );
 
-
+    return true; // keep async channel open
+  };
 });
 
 

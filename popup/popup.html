@@ -1,81 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <title>CertifAI</title>
+
   <style>
+    :root {
+      --bg: #121212;
+      --surface: #1e1e1e;
+      --surface-light: #252525;
+      --text: #e0e0e0;
+      --accent: #4dabf7;
+    }
+
     body {
       width: 300px;
-      padding: 15px;
+      padding: 18px;
       font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
+
     h3 {
       margin-top: 0;
+      text-align: center;
+      color: var(--accent);
+      font-size: 20px;
     }
+
     .upload-area {
-      border: 2px dashed #ccc;
-      border-radius: 8px;
+      border: 2px dashed #333;
+      background: var(--surface);
+      border-radius: 12px;
       padding: 20px;
       text-align: center;
-      margin: 10px 0;
+      margin: 12px 0;
       cursor: pointer;
+      transition: 0.2s ease;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
     }
+
     .upload-area:hover {
-      border-color: #4CAF50;
-      background-color: #f9f9f9;
+      border-color: var(--accent);
+      background-color: var(--surface-light);
     }
+
     input[type="file"] {
       display: none;
     }
+
     button {
       width: 100%;
-      padding: 10px;
-      background-color: #4CAF50;
-      color: white;
+      padding: 12px;
+      background-color: var(--accent);
+      color: #000;
       border: none;
-      border-radius: 4px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 14px;
-      margin-top: 10px;
+      font-weight: bold;
+      margin-top: 12px;
+      transition: 0.2s ease;
+      box-shadow: 0 0 6px rgba(0,0,0,0.35);
     }
+
     button:hover {
-      background-color: #45a049;
+      filter: brightness(1.15);
     }
+
     button:disabled {
-      background-color: #ccc;
+      background-color: #555;
+      color: #999;
       cursor: not-allowed;
+      box-shadow: none;
     }
+
     #openChatButton {
-      background-color: #2196F3;
+      background-color: var(--surface-light);
+      color: var(--text);
+      border: 1px solid #444;
     }
+
     #openChatButton:hover {
-      background-color: #0b7dda;
+      background-color: var(--surface);
+      border-color: var(--accent);
     }
+
     #status {
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 12px;
-      color: #666;
+      color: #aaa;
+      text-align: center;
     }
-    .error {
-      color: #f44336;
+
+    .error { color: #ff6b6b; }
+    .success { color: #4caf50; }
+
+    /* --- MODEL SELECTOR --- */
+
+    .setting-group {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-    .success {
-      color: #4CAF50;
+
+    .setting-group label {
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    select,
+    input[type="password"],
+    input[type="text"] {
+      background: var(--surface-light);
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      color: var(--text);
+      outline: none;
+      box-shadow: 0 0 6px rgba(0,0,0,0.35);
+    }
+
+    select:hover,
+    input:hover {
+      filter: brightness(1.1);
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
+
 <body>
   <h3>CertifAI</h3>
-  
+
   <div class="upload-area" id="uploadArea">
     <p>Click to upload a PDF</p>
-    <p style="font-size: 12px; color: #666;">Input business files that contain information that can be used to fill out these forms</p>
+    <p style="font-size: 12px; color: #aaa;">
+      Input business files containing information to fill out the forms
+    </p>
   </div>
+
   <input type="file" id="fileInput" accept=".pdf">
-  
+
   <button id="fillButton">Fill Form</button>
   <button id="openChatButton">Open AI Chat</button>
-  
+
+  <!-- ======================== -->
+  <!-- MODEL SELECTOR UI SECTION -->
+  <!-- ======================== -->
+  <h3 style="margin-top: 20px;">Model Settings</h3>
+
+  <div class="setting-group">
+    <label for="modelSelect">Select Model</label>
+    <select id="modelSelect">
+      <option value="openai">OpenAI</option>
+      <option value="lmstudio">LMStudio</option>
+      <option value="remote">Remote</option>
+    </select>
+  </div>
+
+  <div id="openaiSettings" class="setting-group hidden">
+    <label for="openaiKey">OpenAI API Key</label>
+    <input type="password" id="openaiKey" placeholder="sk-..." />
+  </div>
+
+  <div id="lmstudioSettings" class="setting-group hidden">
+    <label for="lmPort">LMStudio Port</label>
+    <input type="text" id="lmPort" placeholder="e.g. 1234" />
+  </div>
+
   <div id="status"></div>
-  
+
   <script src="popup.js"></script>
 </body>
 </html>

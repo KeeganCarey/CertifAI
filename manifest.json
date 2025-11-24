@@ -8,7 +8,9 @@
   },
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "identity",   
+    "identity.email"
   ],
   "web_accessible_resources": [{
     "resources": [
@@ -29,8 +31,16 @@
   },
   "host_permissions": [
     "https://api.openai.com/*",
-    "http://100.102.38.119:1235/*"
+    "http://100.102.38.119:1235/*",
+    "http://localhost/*"
   ],
+  "oauth2": {
+    "client_id": "596008921176-ve1ftr4aeuble7keodb2cdv5su0n41m1.apps.googleusercontent.com",
+    "scopes": [
+      "profile",
+      "email"
+    ]
+  },
   "content_scripts": [
     {
       "matches": [

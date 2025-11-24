@@ -3,85 +3,142 @@ let pdfText = null;
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const fillButton = document.getElementById('fillButton');
-// const status = document.getElementById('status');
 
-// Click upload area to trigger file input
+const modelSelect = document.getElementById("modelSelect");
+const openaiSettings = document.getElementById("openaiSettings");
+const lmstudioSettings = document.getElementById("lmstudioSettings");
+const openaiKeyInput = document.getElementById("openaiKey");
+const lmPortInput = document.getElementById("lmPort");
+
+/* -----------------------------
+   LOAD SAVED MODEL SETTINGS
+--------------------------------*/
+chrome.storage.local.get(
+  ["ai_provider", "openai_key", "lmstudio_port"],
+  (data) => {
+
+    if (data.ai_provider) modelSelect.value = data.ai_provider;
+    if (data.openai_key) openaiKeyInput.value = data.openai_key;
+    if (data.lmstudio_port) lmPortInput.value = data.lmstudio_port;
+
+    updateModelVisibility();
+  }
+);
+
+/* -----------------------------
+   SAVE MODEL SETTINGS ON CHANGE
+--------------------------------*/
+modelSelect.addEventListener("change", () => {
+  chrome.storage.local.set({ ai_provider: modelSelect.value });
+  updateModelVisibility();
+});
+
+openaiKeyInput.addEventListener("input", () => {
+  chrome.storage.local.set({ openai_key: openaiKeyInput.value });
+});
+
+lmPortInput.addEventListener("input", () => {
+  chrome.storage.local.set({ lmstudio_port: lmPortInput.value });
+});
+
+/* -----------------------------
+   SHOW / HIDE INPUTS
+--------------------------------*/
+function updateModelVisibility() {
+  const provider = modelSelect.value;
+
+  openaiSettings.classList.add("hidden");
+  lmstudioSettings.classList.add("hidden");
+
+  if (provider === "openai") openaiSettings.classList.remove("hidden");
+  if (provider === "lmstudio") lmstudioSettings.classList.remove("hidden");
+}
+
+/* --------------------------------
+   PDF UPLOAD + FORM FILL LOGIC
+---------------------------------*/
+
+// Click upload area to trigger input
 uploadArea.addEventListener('click', () => {
   fileInput.click();
 });
 
-// Add a button in your popup.html
+// Open chat button
 document.getElementById('openChatButton').addEventListener('click', () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('chat_page/chat_page.html') });
+  chrome.tabs.create({ url: chrome.runtime.getURL('chat_page/chat_page.html') });
 });
 
-// Handle file selection
+// Process PDF selection
 fileInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  
+
   if (file.type !== 'application/pdf') {
-    textContent = 'Please select a PDF file';
-    className = 'error';
+    status.textContent = 'Please select a PDF file';
+    status.className = 'error';
     return;
   }
-  
-  textContent = 'Reading PDF...';
-  className = '';
-  
+
+  status.textContent = 'Reading PDF...';
+  status.className = '';
+
   try {
-    // Convert PDF to base64
     const base64 = await fileToBase64(file);
     pdfText = base64;
-    
-    uploadArea.innerHTML = `<p>${file.name}</p><p style="font-size: 12px;">Click to change</p>`;
-    textContent = 'PDF loaded successfully!';
-    className = 'success';
+
+    uploadArea.innerHTML = `
+      <p>${file.name}</p>
+      <p style="font-size: 12px;">Click to change</p>
+    `;
+
+    status.textContent = 'PDF loaded successfully!';
+    status.className = 'success';
+
   } catch (error) {
     console.error('Error reading PDF:', error);
-    textContent = 'Error reading PDF';
-    className = 'error';
+    status.textContent = 'Error reading PDF';
+    status.className = 'error';
   }
 });
 
 // Fill form button
 fillButton.addEventListener('click', async () => {
   fillButton.disabled = true;
-  textContent = 'Filling form...';
-  className = '';
-  
+  status.textContent = 'Filling form...';
+  status.className = '';
+
   try {
-    // Get the active tab
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    // Send message to content script with PDF data
+
     chrome.tabs.sendMessage(tab.id, {
       action: 'fillForm',
       pdfData: pdfText
     }, (response) => {
+
       if (chrome.runtime.lastError) {
-        textContent = 'Error: ' + chrome.runtime.lastError.message;
-        className = 'error';
+        status.textContent = 'Error: ' + chrome.runtime.lastError.message;
+        status.className = 'error';
       } else {
-        textContent = 'Form filled successfully!';
-        className = 'success';
+        status.textContent = 'Form filled successfully!';
+        status.className = 'success';
       }
+
       fillButton.disabled = false;
     });
+
   } catch (error) {
     console.error('Error:', error);
-    textContent = 'Error filling form';
-    className = 'error';
+    status.textContent = 'Error filling form';
+    status.className = 'error';
     fillButton.disabled = false;
   }
 });
 
-// Convert file to base64
+// Utility: file → base64
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      // Extract base64 data (remove data:application/pdf;base64, prefix)
       const base64 = reader.result.split(',')[1];
       resolve(base64);
     };

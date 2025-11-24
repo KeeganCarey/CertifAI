@@ -82,19 +82,21 @@ async function getCompletion(prompt) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
       { 
-        action: 'getCompletionOpenAI', 
-        messages: messages 
+        action: 'getAIResponse', 
+        messages: messages,
+        max_tokens: 1028
       },
       (response) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
         }
-        if (response.success) {
-          resolve(response.content);
-        } else {
-          reject(new Error(response.error));
-        }
+        resolve(response.content)
+        // if (response.success) {
+        //   resolve(response.content);
+        // } else {
+        //   reject(new Error(response.error));
+        // }
       }
     );
   });
