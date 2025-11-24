@@ -129,7 +129,7 @@ if (request.action === "getStreamedAIResponse") {
                     }
 
                     const chunk = decoder.decode(value, { stream: true });
-                    chrome.runtime.sendMessage({ action: "aiChunk", chunk });
+                    chrome.runtime.sendMessage({ action: "aiChunk", chunk, tabId: sender.tab.id });
                     read();
                 });
             }
@@ -144,6 +144,12 @@ if (request.action === "getStreamedAIResponse") {
     // Keep the message channel open for async sendResponse
     return true;
   }
+
+
+  // Get Tab ID
+  if (request.action === "getTabId") {
+        sendResponse({ tabId: sender.tab.id });
+    }
 });
 
 

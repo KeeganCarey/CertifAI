@@ -5,7 +5,10 @@ const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
 let messages = []; // Store chat history
- 
+let tabId = null;
+chrome.runtime.sendMessage({ action: "getTabId" }, (response) => {
+      tabId = response.tabId;
+});
 
 // Adds messages with smooth fade animation + Markdown render for assistant
 function addMessage(text, isUser) {
@@ -109,31 +112,35 @@ userInput.addEventListener('keypress', (e) => {
 });
 
 
+
 let jsonBuffer = "";
 let messageBuffer = "";
 chrome.runtime.onMessage.addListener((msg) => {
     if (msg.action === "aiChunk") {
+
+      // console.log("target tabId:", msg.tabId, "this tabId:", tabId);
+      if (msg.tabId !== tabId) {
+        return; // Ignore chunks not for this tab
+      }
+
         let isDone = false;
         let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
         if (!lastMsg) {
             return;
-            // lastMsg = document.createElement('div');
-            // lastMsg.className = 'message assistant';
-            // chatContainer.appendChild(lastMsg);
         }
 
         let chunkStr = jsonBuffer + msg.chunk;
         jsonBuffer = "";
         if (!chunkStr) return;
 
-        console.log("Received chunk:", chunkStr);
+        // console.log("Received chunk:", chunkStr);
 
         // split the chunks by the "data:" header
         chunks = chunkStr.split(("data:"))
 
         chunkStr = "";
         chunks.forEach(chunk => {
-          console.log("Processing sub-chunk:", chunk);
+          // console.log("Processing sub-chunk:", chunk);
 
           // Message is DONE
           if (chunk.trim() == '[DONE]') {
@@ -152,7 +159,7 @@ chrome.runtime.onMessage.addListener((msg) => {
             } catch (err) {
 
               if (err instanceof SyntaxError) {
-                  console.log("Incomplete chunk, buffering:", chunk.trim()); //buffer incomplete chunk
+                  // console.log("Incomplete chunk, buffering:", chunk.trim()); //buffer incomplete chunk
                   jsonBuffer = chunk;
                   return
               } else {
@@ -165,12 +172,13 @@ chrome.runtime.onMessage.addListener((msg) => {
         });
 
         // Update message
-        console.log("Appending chunk to message:", chunkStr);
+        // console.log("Appending chunk to message:", chunkStr);
         messageBuffer += chunkStr;
         lastMsg.innerHTML = DOMPurify.sanitize(marked.parse(messageBuffer));
         
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
+        // clean up finalized message
         if (isDone) {
           messages.push({role: 'assistant', content: messageBuffer});
           messageBuffer = "";
@@ -178,3 +186,4 @@ chrome.runtime.onMessage.addListener((msg) => {
         }
     }
 });
+
