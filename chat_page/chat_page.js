@@ -126,24 +126,11 @@ chrome.runtime.onMessage.addListener((msg) => {
           return;
       }
 
-      // display error message to end user
-      if (msg.error) {
-        lastMsg.innerHTML = DOMPurify.sanitize(marked.parse(msg.error));
-        
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        // messages.push({role: 'assistant', content: msg.error});
-        messageBuffer = "";
-        jsonBuffer = "";
-        return
-      }
-
-      
-
       let chunkStr = jsonBuffer + msg.chunk;
       jsonBuffer = "";
 
       if (!chunkStr) return;
-      // console.log("Received chunk:", chunkStr);
+      console.log("Received chunk:", chunkStr);
 
       // split the chunks by the "data:" header
       chunks = chunkStr.split(("data:"))
@@ -163,8 +150,14 @@ chrome.runtime.onMessage.addListener((msg) => {
         if (!(chunk.trim() === "")) {
           try {
             const chunkJson = JSON.parse(chunk.trim());
-            chunkStr += chunkJson.choices[0].delta?.content || "";
-            chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models
+
+            if (chunkJson.error) {
+              chunkStr += "\n**Error:** " + chunkJson.error.message + "\n";
+              isDone = true;
+            } else {
+              chunkStr += chunkJson.choices[0].delta?.content || "";
+              chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models}
+            }
 
           } catch (err) {
 
@@ -186,6 +179,7 @@ chrome.runtime.onMessage.addListener((msg) => {
 
         // Update message
         // console.log("Appending chunk to message:", chunkStr);
+
         messageBuffer += chunkStr;
         lastMsg.innerHTML = DOMPurify.sanitize(marked.parse(messageBuffer));
         

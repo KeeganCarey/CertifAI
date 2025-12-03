@@ -98,7 +98,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                         // make sure error is also streamed to chat page
                         chrome.runtime.sendMessage({ action: "aiChunk",
-                          error: "No OpenAI API Key Saved", 
+                          chunk: "{\"error\": {\"message\" : \"No OpenAI API Key Saved\"}}", 
                           tabId: sender.tab.id});
 
                         sendResponse({ success: false, error: "No OpenAI API Key Saved" });
@@ -114,7 +114,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                         // make sure error is also streamed to chat page
                         chrome.runtime.sendMessage({ action: "aiChunk",
-                          error: "No LMStudio Port Selected", 
+                          chunk: "{\"error\": {\"message\" : \"No LMStudio Port Selected\"}}", 
                           tabId: sender.tab.id});
 
                         sendResponse({ success: false, error: "No LMStudio Port Selected" });
@@ -157,7 +157,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
             read();
         } catch (err) {
-            console.error("Error fetching AI response:", err);
+            chrome.runtime.sendMessage({ action: "aiChunk",
+                          chunk: "{\"error\": {\"message\" : \"" + err.message +"\"}}", 
+                          tabId: sender.tab.id});
             sendResponse({ success: false, error: err.message });
         }
     })();
