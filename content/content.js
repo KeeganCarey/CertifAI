@@ -12,7 +12,7 @@ let extractTextFromPDF;
     }
     
     // Convert base64 to Uint8Array
-    const binaryString = atob(pdfData);  // Changed from pdfDataBase64
+    const binaryString = atob(pdfData);  // Is Changed from pdfDataBase64
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
@@ -102,3 +102,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ success: true });
   }
 });
+
