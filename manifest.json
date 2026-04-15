@@ -17,7 +17,8 @@
     "lib/pdfjs/*", 
     "lib/pdf.worker.mjs", 
     "lib/pdf.mjs", 
-    "chat_page/chat_page.html", 
+    "chat_page/chat_page.html",
+    "certification_explorer/certification_explorer.html", 
     "lib/marked.min.js", 
     "lib/purify.min.js"
   ],

@@ -63,9 +63,11 @@ uploadArea.addEventListener('click', () => {
   fileInput.click();
 });
 
+//TODO THIS IS TESTING DONT FORGEET THISSSSSSSSSSSS HWEGUIGHWIPGHWIPGWHIPG
 // Open chat button
 document.getElementById('openChatButton').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('chat_page/chat_page.html') });
+  chrome.tabs.create({ url: chrome.runtime.getURL('certification_explorer/certification_explorer.html') });
 });
 
 // Process PDF selection

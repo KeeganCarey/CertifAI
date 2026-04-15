@@ -43,7 +43,7 @@ async function getCompletion(prompt, pdfData = null) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
       { 
-        action: 'getCompletionOpenAI', 
+        action: 'getAIResponse', 
         messages: [
           {role: 'user', content: prompt}
         ],

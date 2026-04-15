@@ -5,10 +5,13 @@ This script mainly handles api calls to the different AI providers
 It
 */
 
-
+// used for aborting fetch requests
+const controller = new AbortController();
+const signal = controller.signal;
 
 // LISTENER COMMANDS
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  
   if (request.action === "getAIResponse") {
     chrome.storage.local.get(
       ["ai_provider", "openai_key", "lmstudio_port"],
@@ -46,7 +49,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           case "remote":
           default:
             endpoint = "http://100.102.38.119:1235/v1/chat/completions";
-            model = "qwen3-14b";
+            // model = "qwen3-14b";
+            model = "openai/gpt-oss-20b"
             break;
         }
 
@@ -82,6 +86,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
   if (request.action === "getStreamedAIResponse") {
+
     (async () => {
         try {
             const settings = await new Promise((resolve) =>
@@ -107,7 +112,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     }
                     headers["Authorization"] = `Bearer ${settings.openai_key}`;
                     endpoint = "https://api.openai.com/v1/chat/completions";
-                    model = "gpt-3.5-turbo";
+                    model = "gpt-3.5-turbo"; // gpt-5-nano has buns latency
                     break;
                 case "lmstudio":
                     if (!settings.lmstudio_port) {
@@ -124,7 +129,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     break;
                 default:
                     endpoint = "http://100.102.38.119:1235/v1/chat/completions";
-                    model = "qwen3-14b";
+                    // model = "qwen3-14b";
+                    model = "openai/gpt-oss-20b"
                     break;
             }
 
@@ -134,9 +140,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 body: JSON.stringify({
                     model,
                     messages: request.messages,
-                    max_tokens: request.max_tokens || 1028,
+                    max_completion_tokens: request.max_tokens || 1028,
                     stream: true
-                })
+                }),
+                signal: signal
             });
 
             const reader = response.body.getReader();

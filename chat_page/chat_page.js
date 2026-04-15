@@ -8,7 +8,7 @@ let messages = []; // Store chat history
 let tabId = null;
 chrome.runtime.sendMessage({ action: "getTabId" }, (response) => {
       tabId = response.tabId;
-});
+}); // save current tabId
 
 // Adds messages with smooth fade animation + Markdown render for assistant
 function addMessage(text, isUser) {
@@ -48,11 +48,11 @@ function addMessage(text, isUser) {
 function showTypingIndicator() {
     let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
     lastMsg.style.opacity = 0.6;
-    lastMsg.innerHTML = '<em>AI is typing…</em>';
+    lastMsg.innerHTML = '<em>AI is thinking…</em>';
 }
 function removeTypingIndicator() {
     let lastMsg = chatContainer.querySelector('.message.assistant:last-child');
-    if (lastMsg.innerHTML.includes('AI is typing') && lastMsg.style.opacity < 1.0) { // only remove if still typing indicator
+    if (lastMsg.innerHTML.includes('AI is thinking') && lastMsg.style.opacity < 1.0) { // only remove if still typing indicator
       lastMsg.style.opacity = 1.0;
       lastMsg.innerHTML = '';
     }
@@ -68,6 +68,7 @@ async function sendMessage() {
     
 
     try {
+      
       addMessage("", false);
       showTypingIndicator();
       const response = await getCompletion("/no-think " + message);
@@ -130,7 +131,8 @@ chrome.runtime.onMessage.addListener((msg) => {
       jsonBuffer = "";
 
       if (!chunkStr) return;
-      console.log("Received chunk:", chunkStr);
+      // console.log("Received chunk:", chunkStr);
+        console.log("processing chunk...");
 
       // split the chunks by the "data:" header
       chunks = chunkStr.split(("data:"))
@@ -155,8 +157,11 @@ chrome.runtime.onMessage.addListener((msg) => {
               chunkStr += "\n**Error:** " + chunkJson.error.message + "\n";
               isDone = true;
             } else {
+              console.log(chunk.trim());
+
               chunkStr += chunkJson.choices[0].delta?.content || "";
-              chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models}
+              chunkStr += chunkJson.choices[0].delta?.reasoning_content || ""; // for thinking models
+              chunkStr += chunkJson.choices[0].delta?.reasoning || ""; // for thinking models
             }
 
           } catch (err) {
@@ -185,7 +190,7 @@ chrome.runtime.onMessage.addListener((msg) => {
         
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
-        // clean up finalized message
+        // clean up after finalized message
         if (isDone) {
           messages.push({role: 'assistant', content: messageBuffer});
           messageBuffer = "";

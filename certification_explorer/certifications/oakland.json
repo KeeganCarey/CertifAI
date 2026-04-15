@@ -1,0 +1,78 @@
+[
+    {
+        "url": "https://www.oaklandca.gov/services/register-with-isupplier",
+        "name": "City of Oakland L/SLBE Certification",
+        "requirements": [
+            "Complete online vendor registration to obtain an iSupplier account.",
+            "Demonstrate 'substantial presence' in Oakland (as of Jan 2025).",
+            "Upload City of Oakland Business Tax Certificate.",
+            "Upload W-9 Form.",
+            "Upload Professional Licenses and Secretary of State Letter of Incorporation (if applicable).",
+            "Upload current lease/rental agreement or proof of ownership for the business address.",
+            "Upload first page of the last three years of tax returns.",
+            "Submit evidence of activity (three contracts or invoices showing work performed via the Oakland office)."
+        ],
+        "summary": "The iSupplier portal is the City of Oakland's centralized database for contracting. While basic registration allows bidding, the L/SLBE (Local and Small Local Business Enterprise) status provides bid discounts and preference points. Vendors must first register in the portal and then submit specific financial and 'substantial presence' documentation to achieve certification."
+    },
+    {
+        "url": "https://www.acgov.org/auditor/sleb/eligibility.htm",
+        "name": "Alameda County SLEB Certification",
+        "requirements": [
+            "Complete the Alameda County SLEB (Small Local Emerging Business) Vendor Application.",
+            "Provide proof of business location within Alameda County (lease or deed).",
+            "Submit the most recent three years of Federal Tax Returns.",
+            "Provide a notarized affidavit of eligibility.",
+            "Must be certified as a 'Small' business by the US SBA or meet the county's 'Emerging' revenue caps.",
+            "Ensure the business has been located in the county for at least 6 months prior to application."
+        ],
+        "summary": "The SLEB program is specific to Alameda County (which includes Oakland). It is designed to increase local economic development. Certified vendors receive a 5% bid preference on county contracts for goods and services. Being certified often allows you to partner as a subcontractor on larger county projects that have mandatory local participation goals."
+    },
+    {
+        "url": "https://caleprocure.ca.gov/pages/sbdvbe-index.aspx",
+        "name": "California Small Business (SB) & DVBE Certification",
+        "requirements": [
+            "Register for a bidder account on Cal eProcure.",
+            "Submit the most recent three years of Federal Income Tax Returns to verify Gross Annual Receipts (GARs).",
+            "Provide the most recent four quarters of DE-9C (Quarterly Contribution Return and Report of Wages) to verify employee count (must be 100 or fewer for SB).",
+            "Provide proof of majority ownership and control by the applicant.",
+            "For DVBE: Submit US Dept of Veterans Affairs disability letter and discharge papers (DD 214)."
+        ],
+        "summary": "Administered by the Department of General Services (DGS), this is the primary certification for doing business with the State of California. It grants a 5% bid preference on state contracts. The 'Micro-Business' designation (a subset of SB) is automatically applied if revenues are under $5M, offering further advantages in simplified acquisition processes."
+    },
+    {
+        "url": "https://dot.ca.gov/programs/civil-rights/dbe-certification-information",
+        "name": "California Unified Certification Program (CUCP) DBE",
+        "requirements": [
+            "Submit a Personal Net Worth (PNW) statement (owners must have a PNW under $1.32M, excluding primary residence and business equity).",
+            "Provide proof of social and economic disadvantage (presumed for women and certain minority groups).",
+            "Submit a chaotic array of documents including birth certificates, tax returns, and bank signature cards.",
+            "Undergo an on-site interview/visit by a certifying agency (e.g., BART, Caltrans, or SFMTA).",
+            "Prove the business is independent and for-profit."
+        ],
+        "summary": "The Disadvantaged Business Enterprise (DBE) is a federal designation required for projects funded by the US Department of Transportation (highway, transit, airport projects). In California, you apply through the CUCP one time to be recognized by all transit agencies in the state (BART, Caltrans, LA Metro, etc.)."
+    },
+    {
+        "url": "https://certify.sba.gov/",
+        "name": "Federal 8(a) Business Development Program",
+        "requirements": [
+            "Register in the System for Award Management (SAM.gov).",
+            "Demonstrate social and economic disadvantage.",
+            "Show potential for success (business must have been in operation for two years).",
+            "Submit personal and business financial statements (owners generally must have a net worth under $850k).",
+            "Commit to a 9-year program term with specific business development goals."
+        ],
+        "summary": "This is a robust federal program for small businesses owned by socially and economically disadvantaged individuals. Unlike simple certifications, 8(a) is a business development program that allows for sole-source contracts (no-bid contracts) up to certain distinct thresholds ($4.5M for goods/services, $7.5M for manufacturing)."
+    },
+    {
+        "url": "https://wosb.certify.sba.gov/",
+        "name": "Women-Owned Small Business (WOSB) Federal Certification",
+        "requirements": [
+            "Register in SAM.gov.",
+            "Proof that the business is at least 51% owned and controlled by one or more women.",
+            "Proof of U.S. citizenship for the owners.",
+            "Resume/CV showing the female owner holds the highest officer position and has the managerial experience to run the company.",
+            "Company governing documents (Articles of Incorporation, Bylaws, etc.) showing no restrictions on the female owner's control."
+        ],
+        "summary": "The WOSB program allows the federal government to set aside specific contracts for women-owned businesses in industries where they are underrepresented. There is also an 'EDWOSB' (Economically Disadvantaged) tier which adds financial caps to the eligibility requirements for access to a smaller, less competitive pool of set-asides."
+    }
+]
